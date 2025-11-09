@@ -1,1 +1,1 @@
-Quantum Hybrid Accuracy: 0.85
+Final Quantum Hybrid Accuracy: 0.99
