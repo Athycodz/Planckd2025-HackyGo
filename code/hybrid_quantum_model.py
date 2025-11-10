@@ -90,18 +90,35 @@ def batch_cost(w, Xb, Yb):
 # -------------------------
 # 5) Training loop
 # -------------------------
+import matplotlib.pyplot as plt
+
+loss_history = []  # store loss values
+
 for epoch in range(epochs):
-    epoch_loss = 0.0
-    num_batches = 0
-    for Xb, Yb in batch_iterator(X_train, Y_train_reg, batch_size):
-        # optimizer step on batch
-        weights = opt.step(lambda w: batch_cost(w, Xb, Yb), weights)
-        batch_loss = batch_cost(weights, Xb, Yb)
-        epoch_loss += batch_loss
-        num_batches += 1
-    epoch_loss /= num_batches
-    if (epoch + 1) % 1 == 0:
-        print(f"Epoch {epoch+1}/{epochs}, Avg batch loss: {epoch_loss:.4f}")
+    total_loss = 0
+    for x, y in zip(X_train, Y_train):
+        y_target = 1 if y == 1 else -1
+
+        def cost(w):
+            pred = quantum_circuit(x[:n_qubits], w)
+            return (pred - y_target) ** 2
+
+        weights = opt.step(cost, weights)
+        total_loss += cost(weights)
+
+    avg_loss = total_loss / len(X_train)
+    loss_history.append(avg_loss)
+    print(f"Epoch {epoch+1}/{epochs}, Avg Loss: {avg_loss:.4f}")
+
+# --- After training, plot and save ---
+plt.plot(range(1, epochs+1), loss_history, marker='o')
+plt.title("Hybrid Quantum Model Training Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Average Loss")
+plt.grid(True)
+plt.savefig("results/loss_plot.png")
+print("Saved training loss plot at results/loss_plot.png")
+
 
 # -------------------------
 # 6) Evaluation
